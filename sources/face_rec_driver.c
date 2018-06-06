@@ -4,18 +4,8 @@
 #include "face_rec_driver.h"
 
 static PyObject *p_name, *p_module, *p_func;
-static PyObject *p_args, *p_value;
+static PyObject *p_value;
 static FILE *fp_name;
-
-int main(void)
-{
-    init_face_recognizer();
-    face_recognition("test");
-    face_recognition("/test");
-    close_face_recognizer();
-
-    return 0;
-}
 
 int init_face_recognizer(void)
 {
@@ -72,8 +62,8 @@ struct log face_recognition(char *path)
         size_t len;
 
         result.index = (int) PyLong_AsLong(p_value);
-   //     fseek(fp_name, NAME_LEN * result.index, SEEK_SET); 
-    //    fread(result.name, NAME_LEN, 1, fp_name); 
+   //   fseek(fp_name, NAME_LEN * result.index, SEEK_SET); 
+    //  fread(result.name, NAME_LEN, 1, fp_name); 
 
         now = time(NULL);
         strncpy(result.access_time, ctime(&now), sizeof(result.access_time) - 1);
@@ -82,7 +72,7 @@ struct log face_recognition(char *path)
 
         printf("%d\n", result.index);
         printf("%s\n", result.access_time);
-     //   printf("%s\n", result.name);
+     // printf("%s\n", result.name);
     }
     else  {
         fprintf(stderr, "Call failed\n");

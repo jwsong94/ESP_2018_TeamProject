@@ -6,7 +6,7 @@
 
 #define DELIMITER '#'
 
-int init_socket_commuication(void);
+int init_socket_communication(void);
 int close_socket_communication(void);
 void send_log(struct log *lp);
 void *read_order(void *args);

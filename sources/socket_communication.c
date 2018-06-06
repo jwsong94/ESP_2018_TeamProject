@@ -15,7 +15,7 @@
 static int client_socket;
 static pthread_t th_read;
 
-int init_socket_commuication(void)
+int init_socket_communication(void)
 {
     struct sockaddr_in server_address;
 

@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <pigpio.h>
+#include "face_rec_driver.h"
+#include "socket_communication.h"
 
 #define TRIG_PINNO 16
 #define ECHO_PINNO 6
@@ -21,6 +23,9 @@ int main()
     float distance;
     gpioCfgClock(2, 1, 1);
     if (gpioInitialise()<0) return 1;
+
+    init_face_recognizer();
+    init_socket_communication();
 
     // Initialize Sonar Sensor
     gpioSetMode(TRIG_PINNO, PI_OUTPUT);
@@ -80,6 +85,8 @@ int main()
         gpioDelay(100000);
     }
     gpioTerminate();
+    close_face_recognizer();
+    close_socket_communication();
 
     return 0;
 }
