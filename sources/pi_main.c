@@ -9,7 +9,10 @@
 #define LED_R 22
 #define LED_G 23
 #define LED_B 24
+#define SERVO 12
 
+#define DOOR_OPEN 1500
+#define DOOR_CLOSE 1000
 void trigger(void);
 void setLEDColor(unsigned int);
 void cb_func_echo(int gpio, int level, uint32_t tick);
@@ -24,8 +27,8 @@ int main()
     gpioCfgClock(2, 1, 1);
     if (gpioInitialise()<0) return 1;
 
-    init_face_recognizer();
-    init_socket_communication();
+    // init_face_recognizer();
+    // init_socket_communication();
 
     // Initialize Sonar Sensor
     gpioSetMode(TRIG_PINNO, PI_OUTPUT);
@@ -36,14 +39,20 @@ int main()
     gpioSetMode(LED_G, PI_OUTPUT);
     gpioSetMode(LED_B, PI_OUTPUT);
 
+    // Initialize Servo
+    gpioSetMode(SERVO, PI_OUTPUT); // Set PWM
+    gpioSetPWMfrequency(SERVO, 400);
+    gpioSetPWMrange(SERVO, 2500);
+
     gpioSetAlertFunc(ECHO_PINNO, cb_func_echo);
     gpioWrite(TRIG_PINNO, PI_OFF);
     gpioDelay(1000000);     // delay 1 second
-
+    
     printf("Pi_Main Start\n");
 
     while(1){
         setLEDColor(LED_B);
+        gpioServo(SERVO, DOOR_CLOSE);
         start_tick_ = dist_tick_ = 0;
         gpioTrigger(TRIG_PINNO, 10, PI_HIGH);
         gpioDelay(50000);
@@ -67,11 +76,13 @@ int main()
                     if(c == 'o'){
                         printf("Valid Person\n");
                         setLEDColor(LED_G);
+                        gpioServo(SERVO, DOOR_OPEN);
                         gpioDelay(10000000); // delay 10 second
                     }
                     else{
                         printf("Invalid Person\n");
                         setLEDColor(LED_R);
+                        gpioServo(SERVO, DOOR_CLOSE);
                         gpioDelay(10000000); // delay 10 secont
                     }
                 }
@@ -85,8 +96,8 @@ int main()
         gpioDelay(100000);
     }
     gpioTerminate();
-    close_face_recognizer();
-    close_socket_communication();
+    //close_face_recognizer();
+    //close_socket_communication();
 
     return 0;
 }
