@@ -10,7 +10,7 @@
 #include "socket_communication.h"
 #include "face_rec_driver.h"
 
-#define CLIENT_IP "192.168.25.31"
+#define CLIENT_IP "192.168.25.49"
 #define CLIENT_PORT 11111 
 
 static int client_socket;
