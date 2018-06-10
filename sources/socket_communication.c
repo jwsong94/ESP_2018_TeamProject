@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdint.h>
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -14,6 +15,8 @@
 
 static int client_socket;
 static pthread_t th_read;
+pthread_mutex_t flag_lock = PTHREAD_MUTEX_INITIALIZER;
+int door_flag = F_DEFAULT;
 
 int init_socket_communication(void)
 {
@@ -47,8 +50,7 @@ int close_socket_communication(void)
 
     return 0;
 }
-
-
+ 
 void send_log(struct log *lp)
 {
     char buf[NAME_LEN+TIME_LEN+5];
@@ -73,7 +75,63 @@ void send_log(struct log *lp)
     write(client_socket, buf, total_len);
 }
 
-void *read_order(void *args)
+static void sync_with_server(void)
+{
+    char ch;
+
+    ch = SYNC;
+    write(client_socket, &ch, sizeof(ch));
+}
+
+static void *read_order(void *args)
+{
+    char name[NAME_LEN+1];
+    char flag;
+    int ch;
+
+    for (;;) {
+        flag = 0;
+        if (read(client_socket, &flag, sizeof(flag)) == 0)
+            continue;
+        
+        if (flag == F_REGIST)  {
+            sync_with_server();
+            memset(name, 0, sizeof(name));
+            read(client_socket, name, sizeof(name));
+            sync_with_server();
+            insert_name(name);
+            save_image(client_socket);
+        }
+        else if (flag == F_DEFAULT) {
+            change_door_flag(F_DEFAULT);
+        }
+        else if (flag == F_LOCK) {
+            change_door_flag(F_LOCK);
+        }
+        else if (flag == F_OPEN) {
+            change_door_flag(F_OPEN);
+        }
+    }
+}
+
+static void save_image(int socket_fd)
+{
+}
+    
+static void insert_name(char *name)
 {
 }
 
+static void change_door_flag(int flag)
+{
+    pthread_mutex_lock(&flag_lock);
+    door_flag = flag;
+    pthread_mutex_unlock(&flag_lock);
+}
+
+void read_door_flag(int *val)
+{
+    pthread_mutex_lock(&flag_lock);
+    *val = door_flag;
+    pthread_mutex_unlock(&flag_lock);
+}

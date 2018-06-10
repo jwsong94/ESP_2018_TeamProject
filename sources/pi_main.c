@@ -13,15 +13,19 @@
 
 #define DOOR_OPEN 1500
 #define DOOR_CLOSE 1000
+
 void trigger(void);
 void setLEDColor(unsigned int);
 void cb_func_echo(int gpio, int level, uint32_t tick);
+
+extern pthread_mutex_t flag_lock;
+extern int door_flag;
 
 uint32_t start_tick_, dist_tick_;
 
 unsigned int verify_count = 0;
 
-int main()
+int main(void)
 {
     float distance;
     gpioCfgClock(2, 1, 1);
