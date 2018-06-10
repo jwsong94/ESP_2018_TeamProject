@@ -16,7 +16,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 class SFrame extends JFrame implements ActionListener,Runnable{
-	JButton Openbutton ,Lockbutton, but_input;
+	JButton Openbutton, Lockbutton, defaultButton, but_input;
 	JTextArea ta;
 	JTextField tf; 
 	

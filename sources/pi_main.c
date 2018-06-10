@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <pigpio.h>
+#include <pthread.h>
 #include "face_rec_driver.h"
 #include "socket_communication.h"
 
@@ -19,6 +20,7 @@
 void trigger(void);
 void setLEDColor(unsigned int);
 void cb_func_echo(int gpio, int level, uint32_t tick);
+void copy_streaming_image(FILE *source);
 
 extern pthread_mutex_t flag_lock;
 extern int door_flag;
@@ -30,6 +32,8 @@ unsigned int verify_count = 0;
 int main(void)
 {
     float distance;
+    FILE *fp;
+
     gpioCfgClock(2, 1, 1);
     if (gpioInitialise()<0) return 1;
 
@@ -56,14 +60,23 @@ int main(void)
     gpioWrite(TRIG_PINNO, PI_OFF);
     gpioDelay(1000000);     // delay 1 second
 
-    printf("Pi_Main Start\n");
+    /*
+    if ((fp = fopen("/var/lib/motion/temp.jpg", "r"))) {
+        fprintf(stderr, "fopen error on %s\n", __func__);
+        return 0;
+    }
+    */
 
+    printf("Pi_Main Start\n");
     while(1){
-        if (door_flag == FLAG_LOCK) {
+        int df;
+        read_door_flag(&df);
+        if (df == FLAG_LOCK) {
+            printf("closed\n");
             gpioServo(SERVO, DOOR_CLOSE);
             continue;
         }
-        else if (door_flag == FLAG_OPEN) {
+        else if (df == FLAG_OPEN) {
             gpioServo(SERVO, DOOR_OPEN);
             continue;
         }
@@ -90,8 +103,10 @@ int main(void)
                     struct log l;
                     // Python Code Call
                     memset(&l, 0, sizeof(l));
-                    system("sudo cp /var/lib/motion/temp.jpg ./capture.jpg");
+
                     l.index = -1;
+                    //copy_streaming_image(fp);
+                    system("sudo cp /var/lib/motion/temp.jpg ./capture.jpg");
                     l = face_recognition(TEST_FILE);
 
                     if(l.index >= 0){
@@ -111,7 +126,7 @@ int main(void)
             else{
                 verify_count = 0;
             }
-            printf("interval : %6dus, Distance : %6.1f cm\n", dist_tick_, distance);
+            //printf("interval : %6dus, Distance : %6.1f cm\n", dist_tick_, distance);
         }
 
         gpioDelay(100000);
@@ -137,4 +152,17 @@ void cb_func_echo(int gpio, int level, uint32_t tick)
         start_tick_ = tick;
     else if(level == PI_LOW)
         dist_tick_ = tick - start_tick_;
+}
+
+void copy_streaming_image(FILE *source)
+{
+    FILE *fp_out;
+    int ch;
+
+    fp_out = fopen("capture.jpg", "w");
+    rewind(source);
+    while ((ch = getc(source)) != EOF)
+        putc(ch, fp_out);
+
+    fclose(fp_out);
 }

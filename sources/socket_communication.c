@@ -95,7 +95,6 @@ static void *read_order(void *args)
         if ((len = recv(client_socket, &buf, sizeof(buf), 0)) == 0)
             continue;
         flag = buf[0] - '0';
-        printf("%d\n", flag);
         
         if (flag == FLAG_REGIST)  {
             sync_with_server();

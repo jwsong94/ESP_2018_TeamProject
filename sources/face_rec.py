@@ -7,6 +7,7 @@ def recognize_face(path):
     known_faces = []
     unknown_image = face_recognition.load_image_file(path)
     files = [f for f in os.listdir('./known') if (os.path.isfile('./known/' + f) and f.split('.')[1] == 'jpg')]
+    files.sort()
 
     for f in files:
         registered_list.append(face_recognition.load_image_file('./known/' + f))
@@ -17,7 +18,7 @@ def recognize_face(path):
         for r in registered_list:
             known_faces.append(face_recognition.face_encodings(r)[0])
     except IndexError:
-        return False  
+        return -1  
 
     unknown_face_encoding = face_recognition.face_encodings(unknown_image)[0]
 # results is an array of True/False telling if the unknown face matched anyone in the known_faces array
