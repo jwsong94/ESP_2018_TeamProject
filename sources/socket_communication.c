@@ -10,13 +10,13 @@
 #include "socket_communication.h"
 #include "face_rec_driver.h"
 
-#define CLIENT_IP "10.27.0.166"
-#define CLIENT_PORT 11111
+#define CLIENT_IP "192.168.25.31"
+#define CLIENT_PORT 11111 
 
 static int client_socket;
 static pthread_t th_read;
 pthread_mutex_t flag_lock = PTHREAD_MUTEX_INITIALIZER;
-int door_flag = F_DEFAULT;
+int door_flag = FLAG_DEFAULT;
 
 int init_socket_communication(void)
 {
@@ -57,7 +57,7 @@ void send_log(struct log *lp)
     size_t time_len, name_len, total_len;
 
     memset(buf, 0, sizeof(buf));
-    sprintf(buf + 1, "%s", lp->access_time);
+    sprintf(buf + 2, "%s", lp->access_time);
     time_len = strlen(lp->access_time);
     buf[2+time_len] = DELIMITER;
 
@@ -65,7 +65,7 @@ void send_log(struct log *lp)
         buf[0] = 0;
     else  {
         buf[0] = 1;
-        sprintf(buf + 1 + time_len, "%s", lp->name);
+        sprintf(buf + 3 + time_len, "%s", lp->name);
         name_len = strlen(lp->name);
         buf[2+time_len+1+name_len] = DELIMITER;
     }
@@ -86,14 +86,18 @@ static void sync_with_server(void)
 static void *read_order(void *args)
 {
     char name[NAME_LEN+1];
+    char buf[1024];
     char flag;
+    int len;
 
     for (;;) {
         flag = 0;
-        if (read(client_socket, &flag, sizeof(flag)) == 0)
+        if ((len = recv(client_socket, &buf, sizeof(buf), 0)) == 0)
             continue;
+        flag = buf[0] - '0';
+        printf("%d\n", flag);
         
-        if (flag == F_REGIST)  {
+        if (flag == FLAG_REGIST)  {
             sync_with_server();
             memset(name, 0, sizeof(name));
             read(client_socket, name, sizeof(name));
@@ -101,14 +105,14 @@ static void *read_order(void *args)
             insert_name(name);
             save_image();
         }
-        else if (flag == F_DEFAULT) {
-            change_door_flag(F_DEFAULT);
+        else if (flag == FLAG_DEFAULT) {
+            change_door_flag(FLAG_DEFAULT);
         }
-        else if (flag == F_LOCK) {
-            change_door_flag(F_LOCK);
+        else if (flag == FLAG_LOCK) {
+            change_door_flag(FLAG_LOCK);
         }
-        else if (flag == F_OPEN) {
-            change_door_flag(F_OPEN);
+        else if (flag == FLAG_OPEN) {
+            change_door_flag(FLAG_OPEN);
         }
     }
 }
@@ -119,7 +123,6 @@ static int save_image(void)
     struct header h;
     char file_name[100] = {0};
     char buf[1024];
-    int ch;
 
     if ((fp_name = fopen("./name/name_list", "r")) == NULL) {
         fprintf(stderr, "fopen error on %s\n", __func__);

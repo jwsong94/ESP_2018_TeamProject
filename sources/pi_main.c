@@ -14,6 +14,8 @@
 #define DOOR_OPEN 1500
 #define DOOR_CLOSE 1000
 
+#define TEST_FILE "capture.jpg"
+
 void trigger(void);
 void setLEDColor(unsigned int);
 void cb_func_echo(int gpio, int level, uint32_t tick);
@@ -31,8 +33,10 @@ int main(void)
     gpioCfgClock(2, 1, 1);
     if (gpioInitialise()<0) return 1;
 
-    // init_face_recognizer();
-    // init_socket_communication();
+    init_socket_communication();
+    printf("socket initialized\n");
+    init_face_recognizer();
+    printf("face_recognizer initialized\n");
 
     // Initialize Sonar Sensor
     gpioSetMode(TRIG_PINNO, PI_OUTPUT);
@@ -55,11 +59,11 @@ int main(void)
     printf("Pi_Main Start\n");
 
     while(1){
-        if (door_flag == F_LOCK) {
+        if (door_flag == FLAG_LOCK) {
             gpioServo(SERVO, DOOR_CLOSE);
             continue;
         }
-        else if (door_flag == F_OPEN) {
+        else if (door_flag == FLAG_OPEN) {
             gpioServo(SERVO, DOOR_OPEN);
             continue;
         }
@@ -84,11 +88,11 @@ int main(void)
                     setLEDColor(LED_R);
 
                     struct log l;
-                    char *path;
                     // Python Code Call
                     memset(&l, 0, sizeof(l));
+                    system("sudo cp /var/lib/motion/temp.jpg ./capture.jpg");
                     l.index = -1;
-                    l = face_recognition(path);
+                    l = face_recognition(TEST_FILE);
 
                     if(l.index >= 0){
                         printf("Valid Person\n");
@@ -113,8 +117,8 @@ int main(void)
         gpioDelay(100000);
     }
     gpioTerminate();
-    //close_face_recognizer();
-    //close_socket_communication();
+    close_face_recognizer();
+    close_socket_communication();
 
     return 0;
 }

@@ -4,7 +4,7 @@ CFLAGS = -Wall -Wextra
 LINK = -L/usr/lib/python3.5/config-3.5m-arm-linux-gnueabihf -L/usr/lib -lpython3.5m -lpthread -ldl  -lutil -lm  -Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions 
 
 main: $(OBJECTS) 
-	$(CC) $(CFLAGS) -lrt -pthread -lpigpio $^ $(LINK) -o ../pi_main
+	$(CC) $(CFLAGS) -lrt -pthread -lpigpio $^ $(LINK) -o pi_main
 
 pi_main.o: pi_main.c
 	$(CC) $(CFLAGS) -c  $^

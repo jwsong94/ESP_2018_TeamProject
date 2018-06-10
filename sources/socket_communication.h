@@ -4,10 +4,10 @@
 
 #include "face_rec_driver.h"
 
-#define F_REGIST 1
-#define F_DEFAULT (1 << 1)
-#define F_LOCK (1 << 2) 
-#define F_OPEN (1 << 3)
+#define FLAG_REGIST 1
+#define FLAG_DEFAULT (1 << 1)
+#define FLAG_LOCK (1 << 2) 
+#define FLAG_OPEN (1 << 3)
 #define DELIMITER '/'
 #define SYNC 0
 
