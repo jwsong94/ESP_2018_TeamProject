@@ -20,7 +20,10 @@ def recognize_face(path):
     except IndexError:
         return -1  
 
-    unknown_face_encoding = face_recognition.face_encodings(unknown_image)[0]
+    try: 
+        unknown_face_encoding = face_recognition.face_encodings(unknown_image)[0]
+    except IndexError:
+        return -1
 # results is an array of True/False telling if the unknown face matched anyone in the known_faces array
     results = face_recognition.compare_faces(known_faces, unknown_face_encoding)
     i = 0

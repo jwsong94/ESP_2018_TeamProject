@@ -7,6 +7,15 @@ static PyObject *p_name, *p_module, *p_func;
 static PyObject *p_value;
 static FILE *fp_name;
 
+int main(void)
+{
+    init_face_recognizer();
+    face_recognition("test.jpg");
+    close_face_recognizer();
+
+    return 0;
+}
+
 int init_face_recognizer(void)
 {
     Py_Initialize();

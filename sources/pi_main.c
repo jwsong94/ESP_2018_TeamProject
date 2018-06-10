@@ -60,13 +60,6 @@ int main(void)
     gpioWrite(TRIG_PINNO, PI_OFF);
     gpioDelay(1000000);     // delay 1 second
 
-    /*
-    if ((fp = fopen("/var/lib/motion/temp.jpg", "r"))) {
-        fprintf(stderr, "fopen error on %s\n", __func__);
-        return 0;
-    }
-    */
-
     printf("Pi_Main Start\n");
     while(1){
         int df;
@@ -105,9 +98,9 @@ int main(void)
                     memset(&l, 0, sizeof(l));
 
                     l.index = -1;
-                    //copy_streaming_image(fp);
-                    system("sudo cp /var/lib/motion/temp.jpg ./capture.jpg");
+                    system("ffmpeg -i http://127.0.0.1:8081/ -vframes 1 capture.jpg");
                     l = face_recognition(TEST_FILE);
+                    remove(TEST_FILE);
 
                     if(l.index >= 0){
                         printf("Valid Person\n");
