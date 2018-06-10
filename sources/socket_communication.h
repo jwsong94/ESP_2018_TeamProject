@@ -8,8 +8,13 @@
 #define F_DEFAULT (1 << 1)
 #define F_LOCK (1 << 2) 
 #define F_OPEN (1 << 3)
-#define DELIMITER '#'
+#define DELIMITER '/'
 #define SYNC 0
+
+struct header {
+    uint16_t num_record;
+    uint16_t list;
+};
 
 int init_socket_communication(void);
 int close_socket_communication(void);
@@ -19,7 +24,7 @@ void read_door_flag(int *val);
 static void change_door_flag(int flag);
 static void sync_with_server(void);
 static void *read_order(void *args);
-static void save_image(int socket_fd);
-static void insert_name(char *name);
+static int save_image();
+static int insert_name(char *name);
 
 #endif

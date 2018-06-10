@@ -51,10 +51,19 @@ int main(void)
     gpioSetAlertFunc(ECHO_PINNO, cb_func_echo);
     gpioWrite(TRIG_PINNO, PI_OFF);
     gpioDelay(1000000);     // delay 1 second
-    
+
     printf("Pi_Main Start\n");
 
     while(1){
+        if (door_flag == F_LOCK) {
+            gpioServo(SERVO, DOOR_CLOSE);
+            continue;
+        }
+        else if (door_flag == F_OPEN) {
+            gpioServo(SERVO, DOOR_OPEN);
+            continue;
+        }
+
         setLEDColor(LED_B);
         gpioServo(SERVO, DOOR_CLOSE);
         start_tick_ = dist_tick_ = 0;
@@ -69,15 +78,19 @@ int main(void)
             }
             if(distance < 20){
                 verify_count++;
-            
+
                 if(verify_count > 5){
                     verify_count = 0;
                     setLEDColor(LED_R);
-                    
-                    char c = getchar();
-                    // Python Code Call
 
-                    if(c == 'o'){
+                    struct log l;
+                    char *path;
+                    // Python Code Call
+                    memset(&l, 0, sizeof(l));
+                    l.index = -1;
+                    l = face_recognition(path);
+
+                    if(l.index >= 0){
                         printf("Valid Person\n");
                         setLEDColor(LED_G);
                         gpioServo(SERVO, DOOR_OPEN);

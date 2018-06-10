@@ -87,7 +87,6 @@ static void *read_order(void *args)
 {
     char name[NAME_LEN+1];
     char flag;
-    int ch;
 
     for (;;) {
         flag = 0;
@@ -100,7 +99,7 @@ static void *read_order(void *args)
             read(client_socket, name, sizeof(name));
             sync_with_server();
             insert_name(name);
-            save_image(client_socket);
+            save_image();
         }
         else if (flag == F_DEFAULT) {
             change_door_flag(F_DEFAULT);
@@ -114,12 +113,55 @@ static void *read_order(void *args)
     }
 }
 
-static void save_image(int socket_fd)
+static int save_image(void)
 {
+    FILE *fp_name, *fp_image;
+    struct header h;
+    char file_name[100] = {0};
+    char buf[1024];
+    int ch;
+
+    if ((fp_name = fopen("./name/name_list", "r")) == NULL) {
+        fprintf(stderr, "fopen error on %s\n", __func__);
+        return -1;
+    }
+
+    fread(&h, sizeof(h), 1, fp_name); 
+    sprintf(file_name, "./image/%d", h.num_record);
+
+     if ((fp_image = fopen("file_name", "w")) == NULL) {
+        fprintf(stderr, "fopen error on %s\n", __func__);
+        return -1;
+     }
+
+    while (read(client_socket, buf, sizeof(buf)) != 0) 
+        fwrite(buf, sizeof(buf), 1, fp_image);
+
+    return 0;
 }
     
-static void insert_name(char *name)
+static int insert_name(char *name)
 {
+    FILE *fp_name;
+    struct header h;
+    int ret;
+    
+    if ((fp_name = fopen("./name/name_list", "r+")) == NULL) {
+        fprintf(stderr, "fopen error on %s\n", __func__);
+        return -1;
+    }
+
+    if ((ret = fread(&h, sizeof(h), 1, fp_name) == 0)) {
+        h.num_record = 0;
+        h.list = -1;
+    }
+
+    fseek(fp_name, h.num_record * NAME_LEN, SEEK_SET);
+    fwrite(name, NAME_LEN, 1, fp_name);
+    fseek(fp_name, 0L, SEEK_SET);
+    fwrite(&h, sizeof(h), 1, fp_name);
+    
+    return 0;
 }
 
 static void change_door_flag(int flag)
