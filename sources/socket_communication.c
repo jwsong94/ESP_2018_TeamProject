@@ -51,6 +51,7 @@ int close_socket_communication(void)
     return 0;
 }
  
+/* make a log from sturct log and send it to server */
 void send_log(struct log *lp)
 {
     char buf[NAME_LEN+TIME_LEN+5];
@@ -116,6 +117,7 @@ static void *read_order(void *args)
     }
 }
 
+/* save a image file */
 static int save_image(void)
 {
     FILE *fp_name, *fp_image;
@@ -142,6 +144,7 @@ static int save_image(void)
     return 0;
 }
     
+/* add a registered person's name to name_list file */
 static int insert_name(char *name)
 {
     FILE *fp_name;
