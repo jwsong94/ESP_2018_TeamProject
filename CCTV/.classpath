@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="com.xuggle.utils-1.22.jar"/>
+	<classpathentry kind="lib" path="jna-4.5.1.jar"/>
+	<classpathentry kind="lib" path="jna-platform-4.5.1.jar"/>
+	<classpathentry kind="lib" path="slf4j-api-1.7.10.jar"/>
+	<classpathentry kind="lib" path="vlcj-3.10.1-javadoc.jar"/>
+	<classpathentry kind="lib" path="vlcj-3.10.1-sources.jar"/>
+	<classpathentry kind="lib" path="vlcj-3.10.1-test-sources.jar"/>
+	<classpathentry kind="lib" path="vlcj-3.10.1-tests.jar"/>
+	<classpathentry kind="lib" path="vlcj-3.10.1.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

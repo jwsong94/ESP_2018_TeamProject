@@ -1,4 +1,7 @@
 import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedInputStream;
@@ -8,15 +11,25 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.io.File;
 
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.filechooser.FileSystemView;
+
+
 
 class SFrame extends JFrame implements ActionListener,Runnable{
-	JButton Openbutton, Lockbutton, defaultButton, but_input;
+	JButton Openbutton ,Lockbutton, but_input, Findbutton, defaultButton;
 	JTextArea ta;
 	JTextField tf; 
 	
@@ -26,6 +39,7 @@ class SFrame extends JFrame implements ActionListener,Runnable{
 	static BufferedReader in;
 	static String inputLine, outputLine;	
 	private BufferedInputStream bis;
+
 	
 	public SFrame(){
 		setSize(500, 600);
@@ -36,6 +50,17 @@ class SFrame extends JFrame implements ActionListener,Runnable{
 		JPanel panel = new JPanel();
 		Openbutton = new JButton("Open");
 		Openbutton.addActionListener(this);
+		
+		//파일 열기창
+		JPanel panel4 = new JPanel();
+		Findbutton = new JButton("Find");
+		Findbutton.addActionListener(this);
+		
+		//디폴트
+		JPanel panel3 = new JPanel();
+		defaultButton = new JButton("Default");
+		Findbutton.addActionListener(this);
+		
 		//패널2
 		JPanel panel2 = new JPanel();
 		ta = new JTextArea(30, 30);
@@ -49,8 +74,10 @@ class SFrame extends JFrame implements ActionListener,Runnable{
 		Lockbutton = new JButton("Lock");
 		Lockbutton.addActionListener(this);
 		panel2.add(Lockbutton);
-		
 		panel2.add(Openbutton);
+		panel2.add(defaultButton);
+		panel2.add(Findbutton);
+		
 		panel.setLayout(null);
 		panel.add(ta);
 		panel.add(tf);
@@ -77,10 +104,18 @@ class SFrame extends JFrame implements ActionListener,Runnable{
 			tf.setText("");
 		}else if(arg0.getSource()==Openbutton){
 			System.out.println("Open");
-			out.println("open");
+			out.print(1 << 3);
+			out.println("");
 		}else if(arg0.getSource()==Lockbutton){
 			System.out.println("Lock");
-			out.println("lock");
+			out.print(1 << 2);
+			out.println("");
+		}else if(arg0.getSource()==defaultButton){
+			System.out.println("Default");
+			out.print(1 << 1);
+			out.println("");
+		}else if(arg0.getSource()==Findbutton) {
+			jFileChooserUtil();
 		}
 	}
 	
@@ -163,6 +198,44 @@ class SFrame extends JFrame implements ActionListener,Runnable{
 		}
 		*/
 	}
+	
+public static String jFileChooserUtil(){
+		JPanel jpanel = new JPanel();
+		JLabel image;
+        String folderPath = "";
+        FileFilter imageFilter = new FileNameExtensionFilter(
+        		"Image files", ImageIO.getReaderFileSuffixes());
+        File fileName;
+        
+        JFileChooser chooser = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory()); // 디렉토리 설정
+        chooser.setCurrentDirectory(new File("/")); // 현재 사용 디렉토리
+        chooser.addChoosableFileFilter(imageFilter);
+        chooser.setAcceptAllFileFilterUsed(false);   // Fileter 모든 파일 적용 
+        chooser.setDialogTitle("Choose an image");
+        chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES); // 파일 선택 모드
+      
+        /*
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Image Files", "cd11"); // filter 확장자 추가
+        chooser.setFileFilter(filter); // 파일 필터를 추가
+        */
+        int returnVal = chooser.showOpenDialog(null); // 열기용 창 오픈
+        
+        if(returnVal == JFileChooser.APPROVE_OPTION) { // 열기를 클릭 
+        	fileName=chooser.getSelectedFile();
+        	  String sname = fileName.getAbsolutePath(); //THIS WAS THE PROBLEM
+              image = new JLabel("", new ImageIcon(sname), JLabel.CENTER);
+              jpanel.add(image, BorderLayout.CENTER);
+        //      jpanel.revalidate(); 
+         //     jpanel.repaint();  
+      //    folderPath = chooser.getSelectedFile().toString();
+        }else if(returnVal == JFileChooser.CANCEL_OPTION){ // 취소를 클릭
+            System.out.println("cancel"); 
+            folderPath = "";
+        }
+        
+        return folderPath;
+        
+    }
 
 	@Override
 	public void run() {

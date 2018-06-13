@@ -27,12 +27,12 @@ public class temp extends JFrame{
 
 	private JPanel contentPane;
 	private static EmbeddedMediaPlayerComponent mediaplayer;
-	private final String vlcpath = "D:/VLC";
+	private final String vlcpath = "C:/VLC";
 	//vlc플레이어 설치 후 경로 설정
 
-	public static int PORT = 24181;
+	public static int PORT = 11111;
 	//private static String mediapath = "https://youtu.be/A9K-7AVG2i4";
-	private static String mediapath = "https://youtu.be/fNgD_6bvR44";
+	private static String mediapath = "http://192.168.25.61:8081/";
 	//vlc 플레이어 테스트 하려면 mediapath 주소를 변경해서 테스트
 	
 	
