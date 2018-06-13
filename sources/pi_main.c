@@ -61,11 +61,13 @@ int main(void)
     gpioDelay(1000000);     // delay 1 second
 
     printf("Pi_Main Start\n");
+    //system("sudo modprobe bcm2835-v4l2");
+    //system("sudo motion");
+    remove(TEST_FILE);
     while(1){
         int df;
         read_door_flag(&df);
         if (df == FLAG_LOCK) {
-            printf("closed\n");
             gpioServo(SERVO, DOOR_CLOSE);
             gpioDelay(200000);     // delay 0.2 second
             continue;

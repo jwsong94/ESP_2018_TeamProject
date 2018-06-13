@@ -10,7 +10,7 @@
 #include "socket_communication.h"
 #include "face_rec_driver.h"
 
-#define CLIENT_IP "192.168.25.49"
+#define CLIENT_IP "192.168.0.49"
 #define CLIENT_PORT 11111 
 
 static int client_socket;
@@ -101,7 +101,7 @@ static void *read_order(void *args)
 
     for (;;) {
         flag = 0;
-        if ((len = recv(client_socket, &buf, sizeof(buf), 0)) == 0)
+        if ((len = read(client_socket, &buf, sizeof(buf))) == 0)
             continue;
         flag = buf[0] - '0';
 
@@ -109,8 +109,8 @@ static void *read_order(void *args)
             sync_with_server();
             memset(name, 0, sizeof(name));
             read(client_socket, name, sizeof(name));
-            sync_with_server();
             insert_name(name);
+            sync_with_server();
             save_image();
         }
         else if (flag == FLAG_DEFAULT) {
@@ -160,8 +160,10 @@ static int insert_name(char *name)
     int ret;
 
     if ((fp_name = fopen("./name/name_list", "r+")) == NULL) {
-        fprintf(stderr, "fopen error on %s\n", __func__);
-        return -1;
+        if ((fp_name = fopen("./name/name_list", "w")) == NULL) {
+            fprintf(stderr, "fopen error on %s\n", __func__);
+            return -1;
+        }
     }
 
     if ((ret = fread(&h, sizeof(h), 1, fp_name) == 0)) {
@@ -171,7 +173,9 @@ static int insert_name(char *name)
 
     fseek(fp_name, h.num_record * NAME_LEN, SEEK_SET);
     fwrite(name, NAME_LEN, 1, fp_name);
+
     fseek(fp_name, 0L, SEEK_SET);
+    h.num_record++;
     fwrite(&h, sizeof(h), 1, fp_name);
 
     return 0;

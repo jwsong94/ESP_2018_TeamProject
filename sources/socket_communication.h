@@ -9,7 +9,7 @@
 #define FLAG_LOCK (1 << 2) 
 #define FLAG_OPEN (1 << 3)
 #define DELIMITER '/'
-#define SYNC 0
+#define SYNC -2
 
 struct header {
     uint16_t num_record;
