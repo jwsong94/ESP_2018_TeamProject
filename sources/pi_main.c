@@ -12,8 +12,8 @@
 #define LED_B 24
 #define SERVO 12
 
-#define DOOR_OPEN 1500
-#define DOOR_CLOSE 1000
+#define DOOR_OPEN 1200
+#define DOOR_CLOSE 2000
 
 #define TEST_FILE "capture.jpg"
 
@@ -67,10 +67,12 @@ int main(void)
         if (df == FLAG_LOCK) {
             printf("closed\n");
             gpioServo(SERVO, DOOR_CLOSE);
+            gpioDelay(200000);     // delay 0.2 second
             continue;
         }
         else if (df == FLAG_OPEN) {
             gpioServo(SERVO, DOOR_OPEN);
+            gpioDelay(200000);     // delay 0.2 second
             continue;
         }
 
@@ -106,13 +108,13 @@ int main(void)
                         printf("Valid Person\n");
                         setLEDColor(LED_G);
                         gpioServo(SERVO, DOOR_OPEN);
-                        gpioDelay(10000000); // delay 10 second
+                        gpioDelay(3000000); // delay 3 second
                     }
                     else{
                         printf("Invalid Person\n");
                         setLEDColor(LED_R);
                         gpioServo(SERVO, DOOR_CLOSE);
-                        gpioDelay(10000000); // delay 10 secont
+                        gpioDelay(3000000); // delay 3 secont
                     }
                 }
             }
