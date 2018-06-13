@@ -45,6 +45,7 @@ int init_socket_communication(void)
 
 int close_socket_communication(void)
 {
+    pthread_detach(th_read);
     pthread_cancel(th_read);
     close(client_socket);
 
@@ -54,25 +55,32 @@ int close_socket_communication(void)
 /* make a log from sturct log and send it to server */
 void send_log(struct log *lp)
 {
-    char buf[NAME_LEN+TIME_LEN+5];
-    size_t time_len, name_len, total_len;
+    char buf[NAME_LEN+TIME_LEN+100];
+    size_t index_len, time_len, name_len, total_len;
 
     memset(buf, 0, sizeof(buf));
-    sprintf(buf + 2, "%s", lp->access_time);
-    time_len = strlen(lp->access_time);
-    buf[2+time_len] = DELIMITER;
 
-    if (lp->index == -1)
-        buf[0] = 0;
-    else  {
-        buf[0] = 1;
-        sprintf(buf + 3 + time_len, "%s", lp->name);
-        name_len = strlen(lp->name);
-        buf[2+time_len+1+name_len] = DELIMITER;
+    if (lp->index == -1) {
+        buf[0] = '-';
+        buf[1] = '1';
+        index_len = 2;
+        buf[2] = DELIMITER;
     }
-    buf[1] = DELIMITER;
+    else  {
+        sprintf(buf, "%d", lp->index);
+        index_len = strlen(buf);
+        buf[index_len] = DELIMITER;
+    }
 
-    total_len = 2 + TIME_LEN + 1 + NAME_LEN + 1;
+    sprintf(buf + index_len + 1, "%s", lp->access_time);
+    time_len = strlen(lp->access_time);
+    buf[index_len+1+time_len] = DELIMITER;
+
+    sprintf(buf + index_len + time_len + 2, "%s", lp->name);
+    name_len = strlen(lp->name);
+    buf[index_len+time_len+name_len+2] = DELIMITER;
+
+    total_len = index_len + time_len + name_len + 2;
     write(client_socket, buf, total_len);
 }
 
@@ -96,7 +104,7 @@ static void *read_order(void *args)
         if ((len = recv(client_socket, &buf, sizeof(buf), 0)) == 0)
             continue;
         flag = buf[0] - '0';
-        
+
         if (flag == FLAG_REGIST)  {
             sync_with_server();
             memset(name, 0, sizeof(name));
@@ -133,24 +141,24 @@ static int save_image(void)
     fread(&h, sizeof(h), 1, fp_name); 
     sprintf(file_name, "./image/%d", h.num_record);
 
-     if ((fp_image = fopen("file_name", "w")) == NULL) {
+    if ((fp_image = fopen("file_name", "w")) == NULL) {
         fprintf(stderr, "fopen error on %s\n", __func__);
         return -1;
-     }
+    }
 
     while (read(client_socket, buf, sizeof(buf)) != 0) 
         fwrite(buf, sizeof(buf), 1, fp_image);
 
     return 0;
 }
-    
+
 /* add a registered person's name to name_list file */
 static int insert_name(char *name)
 {
     FILE *fp_name;
     struct header h;
     int ret;
-    
+
     if ((fp_name = fopen("./name/name_list", "r+")) == NULL) {
         fprintf(stderr, "fopen error on %s\n", __func__);
         return -1;
@@ -165,7 +173,7 @@ static int insert_name(char *name)
     fwrite(name, NAME_LEN, 1, fp_name);
     fseek(fp_name, 0L, SEEK_SET);
     fwrite(&h, sizeof(h), 1, fp_name);
-    
+
     return 0;
 }
 
