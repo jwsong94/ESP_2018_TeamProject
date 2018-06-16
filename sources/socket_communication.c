@@ -23,7 +23,7 @@ int init_socket_communication(void)
     struct sockaddr_in server_address;
 
     if ((client_socket = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
-        fprintf(stderr, "open socket error on %d\n", __func__);
+        fprintf(stderr, "open socket error on %s\n", __func__);
         return -1;
     }
 
