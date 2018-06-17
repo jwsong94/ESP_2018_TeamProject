@@ -28,12 +28,12 @@ public class temp extends JFrame{
 	private JPanel contentPane;
 	private static EmbeddedMediaPlayerComponent mediaplayer;
 	private final String vlcpath = "C:/VLC";
-	//vlcÇÃ·¹ÀÌ¾î ¼³Ä¡ ÈÄ °æ·Î ¼³Á¤
+	//vlcï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
 	public static int PORT = 11111;
 	//private static String mediapath = "https://youtu.be/A9K-7AVG2i4";
-	private static String mediapath = "http://192.168.25.61:8081/";
-	//vlc ÇÃ·¹ÀÌ¾î Å×½ºÆ® ÇÏ·Á¸é mediapath ÁÖ¼Ò¸¦ º¯°æÇØ¼­ Å×½ºÆ®
+	private static String mediapath = "http://192.168.0.39:8081/";
+	//vlc ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½×½ï¿½Æ® ï¿½Ï·ï¿½ï¿½ï¿½ mediapath ï¿½Ö¼Ò¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ø¼ï¿½ ï¿½×½ï¿½Æ®
 	
 	
 	static ServerSocket serverSocket = null;
@@ -56,7 +56,7 @@ public class temp extends JFrame{
 									
 					//frame.set();
 					
-					//À¯Æ©ºê µ¿¿µ»ó ÇÃ·¹ÀÌ
+					//ï¿½ï¿½Æ©ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½ï¿½
 					mediaplayer.getMediaPlayer().prepareMedia(mediapath);
 					mediaplayer.getMediaPlayer().setPlaySubItems(true);
 					mediaplayer.getMediaPlayer().play();
@@ -68,7 +68,7 @@ public class temp extends JFrame{
 				
 					//frame.serverStart();
 				
-					//ÀÌ°Å´Â ÀúÀåµÈ µ¿¿µ»ó ½ÃÃ» 
+					//ï¿½Ì°Å´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã» 
 					//mediaplayer.getMediaPlayer().playMedia(mediapath);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -97,7 +97,7 @@ public class temp extends JFrame{
 		panel.setBounds(0, 26, 1036, 589);
 		panel.setLayout(new BorderLayout());
 		
-		//¹Ø¿¡²¨ Áö¿ì°í Å×½ºÆ®
+		//ï¿½Ø¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½×½ï¿½Æ®
         panel.add(mediaplayer, BorderLayout.CENTER);
         panel.setVisible(true);
         

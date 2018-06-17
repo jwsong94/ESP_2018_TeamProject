@@ -12,6 +12,8 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.DataOutputStream;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -36,6 +38,8 @@ class SFrame extends JFrame implements ActionListener,Runnable{
 	static ServerSocket serverSocket = null;
 	static Socket clientSocket =null;
 	static PrintWriter out;
+	static DataOutputStream dos;
+	static boolean isReady = false;
 	static BufferedReader in;
 	static String inputLine, outputLine;	
 	private BufferedInputStream bis;
@@ -59,7 +63,7 @@ class SFrame extends JFrame implements ActionListener,Runnable{
 		//디폴트
 		JPanel panel3 = new JPanel();
 		defaultButton = new JButton("Default");
-		Findbutton.addActionListener(this);
+		defaultButton.addActionListener(this);
 		
 		//패널2
 		JPanel panel2 = new JPanel();
@@ -99,21 +103,22 @@ class SFrame extends JFrame implements ActionListener,Runnable{
 		//out.println에 보내고 싶은 문자열을 보내면 클라이언트로 전송
 		//Text Area에 문장을 적은 뒤 버튼을 클릭하면 클라이언트로 보내고 싶은 문자열 전송
 		if(arg0.getSource()==but_input){
-			ta.append(s+"\n");
-			out.println(s);
+			ta.append(s);
+			out.print(s);
+			out.flush();
 			tf.setText("");
 		}else if(arg0.getSource()==Openbutton){
 			System.out.println("Open");
 			out.print(1 << 3);
-			out.println("");
+			out.flush();
 		}else if(arg0.getSource()==Lockbutton){
 			System.out.println("Lock");
 			out.print(1 << 2);
-			out.println("");
+			out.flush();
 		}else if(arg0.getSource()==defaultButton){
 			System.out.println("Default");
 			out.print(1 << 1);
-			out.println("");
+			out.flush();
 		}else if(arg0.getSource()==Findbutton) {
 			jFileChooserUtil();
 		}
@@ -138,6 +143,7 @@ class SFrame extends JFrame implements ActionListener,Runnable{
 		}
 		
 		out = new PrintWriter(clientSocket.getOutputStream(),true);
+		dos = new DataOutputStream(clientSocket.getOutputStream());
 		in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 		
 		outputLine = "server : hi";
@@ -150,6 +156,7 @@ class SFrame extends JFrame implements ActionListener,Runnable{
 		{
 			try
 			{
+				//원래 이 부분에서 동기화 값인 -2 를 확인하는 코드를 넣어놨었는데 현재 삭제하였습니다.
 				byte[] buf = new byte[1024];
 				bis.read(buf);
 				String p;
@@ -199,6 +206,10 @@ class SFrame extends JFrame implements ActionListener,Runnable{
 		*/
 	}
 	
+//탐색기에서 파일 열고 읽어서 클라이언트한테 출력하는 것을 구현중입니다.
+//클라이언트와 동기화를 위해 -2 를 주고 받는데 이 과정에 문제가 있습니다.
+//아마 C에서 보낸건 맞는데 자바에서 못 읽은거 같습니다. 이름전송까지는 완료되었습니다.
+//그 후 다시 동기화 후 파일 전송에서 막혔습니다.
 public static String jFileChooserUtil(){
 		JPanel jpanel = new JPanel();
 		JLabel image;
@@ -223,12 +234,45 @@ public static String jFileChooserUtil(){
         if(returnVal == JFileChooser.APPROVE_OPTION) { // 열기를 클릭 
         	fileName=chooser.getSelectedFile();
         	  String sname = fileName.getAbsolutePath(); //THIS WAS THE PROBLEM
-              image = new JLabel("", new ImageIcon(sname), JLabel.CENTER);
-              jpanel.add(image, BorderLayout.CENTER);
-        //      jpanel.revalidate(); 
-         //     jpanel.repaint();  
-      //    folderPath = chooser.getSelectedFile().toString();
-        }else if(returnVal == JFileChooser.CANCEL_OPTION){ // 취소를 클릭
+        	  File f = new File(sname);
+        	 try { 
+        		 FileInputStream imageFile = new FileInputStream(f);
+        		 String name = f.getName();
+        		 String[] splitStr;
+        		 int readLen = 0;
+        		 byte[] buffer = new byte[1024];
+        		 
+        		 System.out.println(sname);        		 
+        		 System.out.println(name);
+        		 //클라이언트가 받을 때가지 대기
+        		 out.print(1);
+        		 out.flush();
+       
+        		 splitStr = name.split(".");
+        		 System.out.print(splitStr.length);
+        		 
+        		
+        			 
+        		 isReady = false;
+        		 
+        		 out.flush();
+        		 
+        		 while (isReady == false)
+        			 System.out.println("asdf");
+        		 isReady = false;
+        		 
+        		 while((readLen = imageFile.read(buffer)) != -1) {
+                     dos.write(buffer, 0, readLen);
+        		 }    		 
+        		 dos.flush();
+        		 imageFile.close();
+        		 System.out.println("finished");        	 }
+        	 catch (IOException e) {
+        		 System.out.println(e);
+        	 }
+        	 
+        }
+        else if(returnVal == JFileChooser.CANCEL_OPTION){ // 취소를 클릭
             System.out.println("cancel"); 
             folderPath = "";
         }
