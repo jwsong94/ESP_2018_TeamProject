@@ -148,6 +148,9 @@ static int save_image(void)
 
     while (read(client_socket, buf, sizeof(buf)) != 0) 
         fwrite(buf, sizeof(buf), 1, fp_image);
+    
+    fclose(fp_name);
+    fclose(fp_image);
 
     return 0;
 }
@@ -177,6 +180,7 @@ static int insert_name(char *name)
     fseek(fp_name, 0L, SEEK_SET);
     h.num_record++;
     fwrite(&h, sizeof(h), 1, fp_name);
+    fclose(fp_name);
 
     return 0;
 }
