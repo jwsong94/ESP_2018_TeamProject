@@ -141,7 +141,7 @@ static int save_image(void)
     fread(&h, sizeof(h), 1, fp_name); 
     sprintf(file_name, "./image/%d", h.num_record);
 
-    if ((fp_image = fopen("file_name", "w")) == NULL) {
+    if ((fp_image = fopen(file_name, "w")) == NULL) {
         fprintf(stderr, "fopen error on %s\n", __func__);
         return -1;
     }
